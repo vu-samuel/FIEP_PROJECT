@@ -1,0 +1,11 @@
+streamlit
+pandas
+matplotlib
+plotly
+yfinance
+requests
+tqdm
+python-dotenv
+newsapi-python
+nltk
+pathlib

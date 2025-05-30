@@ -1,0 +1,21 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore Mac system files
+.DS_Store
+
+# Ignore your environment secrets
+.env
+
+# Ignore data files (optional)
+*.csv
+
+# Ignore virtual environment
+venv/
+
+# Ignore cron.log
+cron.log
+
+# Ignore run_pipeline
+run_pipeline.sh
