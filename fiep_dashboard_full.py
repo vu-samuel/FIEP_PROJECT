@@ -12,7 +12,7 @@ from pathlib import Path
 import sys
 
 # ---------------- CONFIG ----------------
-sys.path.append(str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import COMPANY_DATA_DIR as DATA_DIR
 
 st.set_page_config(layout="wide", page_title="📊 Company Insight Dashboard")
