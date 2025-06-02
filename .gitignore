@@ -19,3 +19,6 @@ cron.log
 
 # Ignore run_pipeline
 run_pipeline.sh
+
+# Ignore ignore file
+ignore/

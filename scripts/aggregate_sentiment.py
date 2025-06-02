@@ -1,18 +1,13 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-from config import FULL_SENTIMENT_FILE
-import pandas as pd
-
 from config import (
     FULL_SENTIMENT_FILE,
     DAILY_SENTIMENT_FILE,
     WEEKLY_SENTIMENT_FILE,
     MONTHLY_SENTIMENT_FILE
 )
-
-
+import pandas as pd
 
 
 # Load full sentiment data

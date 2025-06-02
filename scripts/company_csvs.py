@@ -1,4 +1,4 @@
-import sys
+'''import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -66,3 +66,83 @@ for company in companies:
     df_combined.to_csv(filepath, index=False)
 
 print("✅ All company CSVs updated with advanced features.")
+'''
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import pandas as pd
+import logging
+from config import DAILY_SENTIMENT_FILE, DAX_PRICES_FILE, COMPANY_DATA_DIR
+
+# ---------------- LOGGING SETUP ----------------
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+# --------------- SETUP -------------------------
+COMPANY_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# Load data
+sentiment_df = pd.read_csv(DAILY_SENTIMENT_FILE, parse_dates=["date"])
+price_df = pd.read_csv(DAX_PRICES_FILE, parse_dates=["Date"])
+price_df.rename(columns={"Date": "date"}, inplace=True)
+
+# Normalize company names
+sentiment_df["company_name"] = sentiment_df["company_name"].str.strip().str.title()
+price_df["Company"] = price_df["Company"].str.strip().str.title()
+
+# Get intersection of companies
+companies = sorted(set(sentiment_df["company_name"]).intersection(price_df["Company"]))
+
+# --------------- PROCESS EACH COMPANY ----------------
+for company in companies:
+    sentiment = sentiment_df[sentiment_df["company_name"] == company][["date", "avg_sentiment"]].copy()
+    price = price_df[price_df["Company"] == company][["date", "Close"]].copy()
+
+    df_new = pd.merge(sentiment, price, on="date", how="inner")
+    if df_new.empty:
+        logger.warning(f"⚠️ No data for {company}, skipping.")
+        continue
+
+    filename = f"{company.replace(' ', '_')}.csv"
+    filepath = COMPANY_DATA_DIR / filename
+
+    if filepath.exists():
+        df_existing = pd.read_csv(filepath, parse_dates=["date"])
+        df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+        df_combined.drop_duplicates(subset=["date"], inplace=True)
+
+        # Only continue if new data exists
+        if df_combined.equals(df_existing):
+            logger.info(f"⏩ No changes for {company}, skipping write.")
+            continue
+    else:
+        df_combined = df_new
+
+    df_combined.sort_values("date", inplace=True)
+
+    # Feature Engineering
+    df_combined["sentiment_7d"] = df_combined["avg_sentiment"].rolling(7).mean()
+    df_combined["sentiment_change"] = df_combined["avg_sentiment"].diff()
+    df_combined["sentiment_lag1"] = df_combined["avg_sentiment"].shift(1)
+    df_combined["sentiment_lag3"] = df_combined["avg_sentiment"].shift(3)
+    df_combined["stock_price_return"] = df_combined["Close"].pct_change()
+    df_combined["return_7d"] = df_combined["Close"].pct_change(7)
+    df_combined["volatility_7d"] = df_combined["Close"].rolling(7).std()
+
+    sentiment_mean = df_combined["avg_sentiment"].rolling(30).mean()
+    sentiment_std = df_combined["avg_sentiment"].rolling(30).std()
+    df_combined["sentiment_zscore"] = (df_combined["avg_sentiment"] - sentiment_mean) / sentiment_std
+
+    df_combined["alert"] = (df_combined["sentiment_change"] <= -0.3).fillna(False)
+    df_combined["alert_combined"] = ((df_combined["sentiment_change"] <= -0.3) & 
+                                     (df_combined["stock_price_return"] < 0)).fillna(False)
+
+    df_combined["weekday"] = df_combined["date"].dt.day_name()
+    df_combined["month"] = df_combined["date"].dt.month
+
+    df_combined.to_csv(filepath, index=False)
+    logger.info(f"✅ Updated CSV for {company}")
+
+logger.info("🏁 All company CSVs updated with advanced features.")
