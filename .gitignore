@@ -8,9 +8,6 @@ __pycache__/
 # Ignore your environment secrets
 .env
 
-# Ignore data files (optional)
-*.csv
-
 # Ignore virtual environment
 venv/
 
