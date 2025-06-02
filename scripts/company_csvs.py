@@ -1,14 +1,8 @@
 import sys
 from pathlib import Path
-
-# Add project root (FIEP_PROJECT) to sys.path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from config import DAX_ARTICLES_FILE, FULL_SENTIMENT_FILE  # oder was du brauchst
-
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pandas as pd
-import os
 from config import DAILY_SENTIMENT_FILE, DAX_PRICES_FILE, COMPANY_DATA_DIR
 
 

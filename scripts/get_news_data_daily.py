@@ -1,3 +1,16 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from config import DAX_ARTICLES_FILE, FULL_SENTIMENT_FILE, NEWS_API_KEY  # ✅ use from config.py
+import pandas as pd
+import time
+import os
+import random
+from tqdm import tqdm
+from datetime import datetime, timedelta
+from newsapi import NewsApiClient
+
+
 # DAX-Tickerliste
 dax_tickers = [
     "GDAXI", "Adidas", "Airbus", "Allianz", "BASF", "Bayer", "Beiersdorf", "BMW", "Brenntag", "Commerzbank",
@@ -7,34 +20,6 @@ dax_tickers = [
     "Münchener Rück", "Porsche AG", "Porsche SE", "Qiagen", "Rheinmetall", "RWE", "SAP", "Sartorius",
     "Siemens", "Siemens Energy", "Siemens Healthineers", "Symrise", "Volkswagen (VZ)", "Zalando"
 ]
-
-import sys
-from pathlib import Path
-
-# Add project root (FIEP_PROJECT) to sys.path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from config import DAX_ARTICLES_FILE, FULL_SENTIMENT_FILE  # oder was du brauchst
-
-
-
-# Libraries
-import pandas as pd
-import time
-import os
-import random
-from tqdm import tqdm
-from datetime import datetime, timedelta
-from newsapi import NewsApiClient
-from config import DAX_ARTICLES_FILE, NEWS_API_KEY  # ✅ config-based paths
-
-import sys
-from pathlib import Path
-
-# Füge Projektverzeichnis zum Pfad hinzu
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from config import DAX_ARTICLES_FILE, NEWS_API_KEY  # jetzt funktioniert's
 
 
 # Init NewsAPI
@@ -59,8 +44,8 @@ for company_name in tqdm(dax_tickers, desc="Fetching news"):
     try:
         all_articles = newsapi.get_everything(
             q=company_name,
-            sources='handelsblatt,the-economist,business-insider,reuters,forbes,bloomberg',
-            domains='handelsblatt.de,businessinsider.de,reuters.com,forbes.com,bloomberg.com',
+            sources='handelsblatt,the-economist,business-insider,reuters,forbes,bloomberg,yahoo-finance',
+            domains='handelsblatt.de,businessinsider.de,reuters.com,forbes.com,bloomberg.com,finance.yahoo.com',
             from_param=thirty_days_ago_str,
             to=today_str,
             sort_by='relevancy'

@@ -1,26 +1,16 @@
 import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Add project root (FIEP_PROJECT) to sys.path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from config import DAX_ARTICLES_FILE, FULL_SENTIMENT_FILE  # oder was du brauchst
-
-
-
-import os
+from config import FULL_SENTIMENT_FILE
 import pandas as pd
+import os
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from config import DAX_ARTICLES_FILE, FULL_SENTIMENT_FILE  # ✅ use from config.py
 
 import sys
 from pathlib import Path
-
-# Füge Projektverzeichnis zum Pfad hinzu
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from config import DAX_ARTICLES_FILE, NEWS_API_KEY  # jetzt funktioniert's
 
 
 # Download the VADER lexicon (if not already present)

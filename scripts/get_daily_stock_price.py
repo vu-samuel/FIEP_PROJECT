@@ -1,11 +1,6 @@
 import sys
 from pathlib import Path
-
-# Add project root (FIEP_PROJECT) to sys.path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from config import DAX_ARTICLES_FILE, FULL_SENTIMENT_FILE  # oder was du brauchst
-
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pandas as pd
 import yfinance as yf
@@ -32,7 +27,7 @@ DAX_TICKERS = {
     'Vonovia': 'VNA.DE', 'Zalando': 'ZAL.DE'
 }
 
-DEFAULT_START_DATE = datetime(2025, 4, 19)
+DEFAULT_START_DATE = datetime(2025, 1, 1)
 END_DATE = datetime.today()
 # ------------------------------
 
