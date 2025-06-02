@@ -23,16 +23,9 @@ st.set_page_config(layout="wide", page_title="📊 Company Insight Dashboard")
 @st.cache_data
 def get_company_files():
     if not DATA_DIR.exists() or not DATA_DIR.is_dir():
-        st.error(f"❌ DATA_DIR does not exist or is not a directory: {DATA_DIR}")
         return []
+    return sorted([f.name for f in DATA_DIR.glob("*.csv")])
 
-    files = sorted([f.name for f in DATA_DIR.glob("*.csv")])
-    if not files:
-        st.warning(f"⚠️ No .csv files found in {DATA_DIR}")
-    return files
-
-   
-    
 
 @st.cache_data
 def load_company_data(filename):
@@ -41,6 +34,12 @@ def load_company_data(filename):
 # ------------ Sidebar ------------
 st.sidebar.title("📁 Company Selection")
 companies = get_company_files()
+if not companies:
+    st.warning(f"⚠️ No .csv files found in {DATA_DIR}")
+    st.stop()
+else:
+    selected_file = st.sidebar.selectbox("Choose a company", companies)
+
 selected_file = st.sidebar.selectbox("Choose a company", companies)
 date_range = st.sidebar.radio("Select Date Range", ["All", "YTD", "1 Year", "3 Years"], index=0)
 show_zscore = st.sidebar.checkbox("Overlay Sentiment Z-Score", value=True)
