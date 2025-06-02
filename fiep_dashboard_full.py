@@ -20,7 +20,16 @@ st.set_page_config(layout="wide", page_title="📊 Company Insight Dashboard")
 # ------------ Load & List Companies ------------
 @st.cache_data
 def get_company_files():
-    return sorted([f for f in os.listdir(DATA_DIR) if f.endswith(".csv")])
+    if not os.path.isdir(DATA_DIR):
+        st.error(f"❌ DATA_DIR not found: {DATA_DIR}")
+        return []
+    
+    files = sorted([f.name for f in DATA_DIR.glob("*.csv")])
+    if not files:
+        st.warning(f"⚠️ No .csv files found in {DATA_DIR}")
+    return files
+    #return sorted([f for f in os.listdir(DATA_DIR) if f.endswith(".csv")])
+    
 
 @st.cache_data
 def load_company_data(filename):
