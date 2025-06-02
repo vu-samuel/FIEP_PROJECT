@@ -1,12 +1,9 @@
-# Optimized Streamlit dashboard with spinners, modular layout, and advanced features
-
 import streamlit as st
 import pandas as pd
 import os
 import plotly.express as px
 import plotly.io as pio
 from plotly.graph_objs import Figure, Scatter, Candlestick
-import io
 from pathlib import Path
 import sys
 
@@ -21,28 +18,26 @@ st.set_page_config(layout="wide", page_title="📊 Company Insight Dashboard")
 # ------------ Load & List Companies ------------
 @st.cache_data
 def get_company_files():
-    st.write("📂 Looking in this folder:", DATA_DIR)
-    st.write("📄 Files found:", list(DATA_DIR.glob("*.csv")))
-
-    if not DATA_DIR.exists() or not DATA_DIR.is_dir():
-        return []
-    return sorted([f.name for f in DATA_DIR.glob("*.csv")])
-
+    files = sorted([f.name for f in DATA_DIR.glob("*.csv")])
+    return files
 
 @st.cache_data
 def load_company_data(filename):
-    return pd.read_csv(os.path.join(DATA_DIR, filename), parse_dates=["date"])
+    return pd.read_csv(DATA_DIR / filename, parse_dates=["date"])
 
 # ------------ Sidebar ------------
 st.sidebar.title("📁 Company Selection")
+
 companies = get_company_files()
 if not companies:
     st.warning(f"⚠️ No .csv files found in {DATA_DIR}")
     st.stop()
-else:
-    selected_file = st.sidebar.selectbox("Choose a company", companies)
 
-selected_file = st.sidebar.selectbox("Choose a company", companies)
+# Mapping: show pretty names, select correct file
+company_labels = [f.replace(".csv", "").capitalize() for f in companies]
+selected_label = st.sidebar.selectbox("Choose a company", company_labels)
+selected_file = companies[company_labels.index(selected_label)]
+
 date_range = st.sidebar.radio("Select Date Range", ["All", "YTD", "1 Year", "3 Years"], index=0)
 show_zscore = st.sidebar.checkbox("Overlay Sentiment Z-Score", value=True)
 show_alerts = st.sidebar.checkbox("Show Alerts", value=True)
@@ -55,9 +50,8 @@ export_pdf = st.sidebar.button("📄 Export PDF Report")
 # ------------ Load Data ------------
 with st.spinner("Loading company data..."):
     df = load_company_data(selected_file)
-    company_name = selected_file.replace("_", " ").replace(".csv", "")
+    company_name = selected_label
 
-    # Filter by date range
     if date_range != "All":
         max_date = df["date"].max()
         if date_range == "YTD":
